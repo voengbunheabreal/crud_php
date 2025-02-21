@@ -1,28 +1,40 @@
-version: "3.8"
+version: "3.7"
 
 services:
-  php-apache:
-    build: .
+  app:
     container_name: php-app
+    image: heab/crud_php-app:latest
+    restart: always
     ports:
-      - "8080:80"
+      - "8000:80"
     depends_on:
-      - mysql
-    networks:
-      - mynetwork
+      - db
 
-  mysql:
-    image: mysql:latest
-    container_name: mysql-container
+  db:
+    container_name: mysql-db
+    image: mysql:5.7
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: crud_db
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
-      - "3306:3306"
-    networks:
-      - mynetwork
+      - "8081:80"
+    volumes:
+      - db_data:/var/lib/mysql
 
-networks:
-  mynetwork:
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:
